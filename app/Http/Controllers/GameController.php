@@ -61,9 +61,21 @@ class GameController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Game $game)
+    public function update(Request $request, string $id)
     {
-        //
+        $game = Game::find($id);
+
+        if (!$game) 
+        {
+            return response()->json(['uzenet' => 'Nincs ilyen játék az adatbázisban.']);
+        }
+
+        $validated = $request->validate(
+            [
+            'difficulty' => 'required|string'
+            ],[],
+            ['difficulty' => 'nehézség']
+        );
     }
 
     /**
