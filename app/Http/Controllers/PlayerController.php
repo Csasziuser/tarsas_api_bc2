@@ -13,7 +13,12 @@ class PlayerController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $players = Player::all();
+            return response()->json($players,200,options:JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $th) {
+            return response()->json(['uzenet' => 'Nem sikrült lekérni a játékosokat'],500,options:JSON_UNESCAPED_UNICODE);
+        }
     }
 
     /**
@@ -24,9 +29,8 @@ class PlayerController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|min:1|max:50',
             'email' => 'required|email|min:1|max:50'
-        ],[
-        
-        ],[
+        ],[]
+        ,[
             'name' => 'A játékos neve',
             'email' => 'A játékos emailje'
         ]);
