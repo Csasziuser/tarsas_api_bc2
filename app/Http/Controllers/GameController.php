@@ -16,7 +16,7 @@ class GameController extends Controller
             $games = Game::all();
             return response()->json($games,200,options:JSON_UNESCAPED_UNICODE);
         } catch (\Throwable $th) {
-            return response()->json(['uzenet' => 'Hiba az adatok lekérdezése során!'],500,options:JSON_UNESCAPED_UNICODE);
+            return response()->json(['uzenet' => 'Hiba az adatok lekérdezése során! Hiba a szerver elérésekor!'],500,options:JSON_UNESCAPED_UNICODE);
         }
         
     }
@@ -46,7 +46,7 @@ class GameController extends Controller
             return response()->json(['uzenet' => 'A játék sikeresen rögzítve!'],201,options:JSON_UNESCAPED_UNICODE);
         } catch (\Throwable $th) 
         {
-           return response()->json(['uzenet' => 'Hiba az adat rögzítése során!'],500,options:JSON_UNESCAPED_UNICODE);
+           return response()->json(['uzenet' => 'Hiba az adat rögzítése során! Hiba a szerver elérésekor!'],500,options:JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -67,7 +67,7 @@ class GameController extends Controller
 
         if (!$game) 
         {
-            return response()->json(['uzenet' => 'Nincs ilyen játék az adatbázisban.']);
+            return response()->json(['uzenet' => 'Nincs ilyen játék az adatbázisban.'],404,options:JSON_UNESCAPED_UNICODE);
         }
 
         $validated = $request->validate(
@@ -76,13 +76,38 @@ class GameController extends Controller
             ],[],
             ['difficulty' => 'nehézség']
         );
+
+        try {
+            $game->update($validated);
+
+            return response()->json(['uzenet' => 'A játék nehézsége sikeresen módosítva!'],200,options:JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $th) {
+            return response()->json(['uzenet' => 'A játék nehézségének módosítása sikertelen! Hiba a szerver elérésekor!'],500,options:JSON_UNESCAPED_UNICODE);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Game $game)
+    public function destroy(string $id)
     {
-        //
+        try {
+            $game = Game::find($id);
+        } catch (\Throwable $th) {
+            return response()->json(['uzenet' => 'Hiba a szerver elérésekor!'],500,options:JSON_UNESCAPED_UNICODE);
+        }
+        
+
+        if (!$game) {
+            return response()->json(['uzenet' => 'Nincs ilyen játék az adatbázisban.'],404,options:JSON_UNESCAPED_UNICODE);
+        }
+
+        try {
+            $game->delete();
+            return response()->json(['uzenet' => 'A játék sikresen törölve!'],200,options:JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $th) {
+            return response()->json(['uzenet' => 'A játék törlése sikertelen! Hiba a szerver elérésekor!'],500,options:JSON_UNESCAPED_UNICODE);
+        }
+        
     }
 }

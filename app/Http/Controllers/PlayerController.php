@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Player;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class PlayerController extends Controller
 {
@@ -20,7 +21,26 @@ class PlayerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|min:1|max:50',
+            'email' => 'required|email|min:1|max:50'
+        ],[
+        
+        ],[
+            'name' => 'A játékos neve',
+            'email' => 'A játékos emailje'
+        ]);
+        try {
+            Player::create($validated);
+            return response()->json([
+                "uzenet" => "Létrejött az adat",
+            ],201,options:JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "uzenet" => "Nem sikerült"
+            ],500,options:JSON_UNESCAPED_UNICODE);
+        }
+
     }
 
     /**
