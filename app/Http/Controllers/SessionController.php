@@ -78,15 +78,35 @@ class SessionController extends Controller
                 'scheduled_at' => $request->scheduled_at
             ]);
         } catch (\Throwable $th) {
-            return response()->json(["uzenet" => "Hiba a frissítés során"], 500, options: JSON_UNESCAPED_UNICODE);
+            return response()->json(["uzenet" => "Hiba a frissítés során"], 500, 
+            options: JSON_UNESCAPED_UNICODE);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Session $session)
+    public function destroy(string $sessionId)
     {
-        //
+        try {
+            $session = Session::find($sessionId);
+        } catch (\Throwable $th) {
+            return response()->json(['uzenet' => 'Hiba a törlés során!'],500, 
+                options:JSON_UNESCAPED_UNICODE);
+        }
+
+        if (!$session) {
+            return response()->json(['uzenet' => 'Nincs esemény a megadott azonosítóval!'],400, 
+                options:JSON_UNESCAPED_UNICODE);
+        }
+ 
+        try {
+            $session->delete();
+            return response()->json(['uzenet' => 'Esemény törölve!'],200,
+            options:JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $th) {
+            return response()->json(["uzenet" => "Hiba a törlés során"], 500, 
+            options: JSON_UNESCAPED_UNICODE);
+        }
     }
 }
